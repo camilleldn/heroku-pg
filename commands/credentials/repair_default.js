@@ -21,12 +21,12 @@ function * run (context, heroku) {
 module.exports = {
   topic: 'pg',
   command: 'credentials:repair-default',
-  description: 'Repair the permissions of the default role within database.',
+  description: 'repair the permissions of the default credential within database',
   needsApp: true,
   needsAuth: true,
   help: `
 Example Usage:
-  heroku pg:credentials:repair-default postgresql-something-12345 --name my_role
+  heroku pg:credentials:repair-default postgresql-something-12345 --name cred-name
 `,
   args: [{name: 'database', optional: true}],
   run: cli.command({preauth: true}, co.wrap(run))

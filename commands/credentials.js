@@ -24,12 +24,12 @@ function * run (context, heroku) {
 module.exports = {
   topic: 'pg',
   command: 'credentials',
-  description: 'list the credentials within a database.',
+  description: 'show information on credentials in the database',
   needsApp: true,
   needsAuth: true,
   help: `
 Example Usage:
-  heroku pg:credentials postgresql-something-12345 --name my_role
+  heroku pg:credentials postgresql-transparent-12345 --name chucks-role -a woodstock-production
 `,
   args: [{name: 'database', optional: true}],
   run: cli.command({preauth: true}, co.wrap(run))

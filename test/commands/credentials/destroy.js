@@ -56,8 +56,8 @@ describe('pg:credentials:destroy', () => {
     api.get('/addons/postgres-1/addon-attachments').reply(200, attachments)
     return cmd.run({app: 'myapp', args: {}, flags: {name: 'credname', confirm: 'myapp'}})
     .then(() => expect(cli.stderr, 'to equal', 'Destroying credential credname... done\n'))
-    .then(() => expect(cli.stdout, 'to equal', `The credential has been destroyed within postgres-1 and detached from all apps.
-Database objects owned by credname will be assigned to the default credential
+    .then(() => expect(cli.stdout, 'to equal', `The credential has been destroyed within postgres-1.
+Database objects owned by credname will be assigned to the default credential.
 `))
   })
 
@@ -81,7 +81,7 @@ Database objects owned by credname will be assigned to the default credential
     const err = new Error('This operation is not supported by Hobby tier databases.')
     return expect(cmd.run({app: 'myapp', args: {}, flags: {name: 'jeff'}}), 'to be rejected with', err)
   })
-  
+
   it('throws an error when the credential is still used for an attachment', () => {
     let attachments = [
       {
@@ -101,5 +101,5 @@ Database objects owned by credname will be assigned to the default credential
     const err = new Error('Credential jeff must be detached from all other apps before destroying.')
     return expect(cmd.run({app: 'myapp', args: {}, flags: {name: 'jeff'}}), 'to be rejected with', err)
   })
-  
+
 })

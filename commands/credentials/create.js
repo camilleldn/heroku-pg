@@ -19,19 +19,24 @@ function * run (context, heroku) {
   yield cli.action(`Creating credential ${cli.color.cmd(flags.name)}`, co(function * () {
     yield heroku.post(`/postgres/v0/databases/${db.name}/credentials`, {host: host(db), body: data})
   }))
+  let attachCmd = `heroku addons:attach --credential ${flags.name} -a app_name`
+  let psqlCmd = `heroku pg:psql ${db.name} -a ${app}`
+  cli.log(`
+Please attach the credential to the apps you want to use it in by running ${cli.color.cmd(attachCmd)}.
+Please define the new grants for the credential within Postgres: ${cli.color.cmd(psqlCmd)}.`)
 }
 
 module.exports = {
   topic: 'pg',
   command: 'credentials:create',
-  description: 'Create role within database.',
+  description: 'create credential within database',
   needsApp: true,
   needsAuth: true,
   help: `
 Example Usage:
-  heroku pg:credentials:create postgresql-something-12345 --name new_role_name
+  heroku pg:credentials:create postgresql-something-12345 --name new-cred-name
 `,
   args: [{name: 'database', optional: true}],
-  flags: [{name: 'name', hasValue: true, required: true, description: 'name of the new credential within the database'}],
+  flags: [{name: 'name', char: 'n', hasValue: true, required: true, description: 'name of the new credential within the database'}],
   run: cli.command({preauth: true}, co.wrap(run))
 }
