@@ -29,7 +29,7 @@ module.exports = {
   needsAuth: true,
   help: `
 Example Usage:
-  heroku pg:credentials postgresql-something-12345 --name my_role
+  heroku pg:credentials postgresql-transparent-12345 --name chucks-role -a woodstock-production
 `,
   args: [{name: 'database', optional: true}],
   run: cli.command({preauth: true}, co.wrap(run))
