@@ -24,7 +24,7 @@ function * run (context, heroku) {
 module.exports = {
   topic: 'pg',
   command: 'credentials',
-  description: 'list the credentials within a database.',
+  description: 'Show information on credentials in the database.',
   needsApp: true,
   needsAuth: true,
   help: `
