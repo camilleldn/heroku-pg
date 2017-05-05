@@ -31,13 +31,10 @@ function * run (context, heroku) {
 module.exports = {
   topic: 'pg',
   command: 'credentials',
-  description: 'show information on credentials in the database',
+  description: 'manage the database credentials',
   needsApp: true,
   needsAuth: true,
-  help: `
-Example Usage:
-  heroku pg:credentials postgresql-transparent-12345 --name chucks-role -a woodstock-production
-`,
+  flags: [{name: 'reset', description: 'reset database credentials'}],
   args: [{name: 'database', optional: true}],
   run: cli.command({preauth: true}, co.wrap(run))
 }
