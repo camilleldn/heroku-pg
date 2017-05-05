@@ -5,16 +5,11 @@ const cli = require('heroku-cli-util')
 
 function * run (context, heroku) {
   const fetcher = require('../lib/fetcher')(heroku)
+  const host = require('../lib/host')
 
-  const {app, args, flags} = context
+  const {app, args} = context
 
-  let showCredentials = co.wrap(function * () {
-    let db = yield fetcher.database(app, args.database)
-    cli.log(`Connection info string:
-   "dbname=${db.database} host=${db.host} port=${db.port || 5432} user=${db.user} password=${db.password} sslmode=require"
-Connection URL:
-   ${db.url.href}`)
-  })
+  let db = yield fetcher.addon(app, args.database)
 
   let reset = co.wrap(function * () {
     const host = require('../lib/host')
@@ -23,21 +18,26 @@ Connection URL:
       yield heroku.post(`/client/v11/databases/${db.id}/credentials_rotation`, {host: host(db)})
     }))
   })
-
-  if (flags.reset) {
-    yield reset()
-  } else {
-    yield showCredentials()
-  }
+  let credentials = yield heroku.get(`/postgres/v0/databases/${db.name}/credentials`,
+                                     { host: host(db) })
+  cli.table(credentials, {
+    columns: [
+      {key: 'name', label: 'Credential'},
+      {key: 'state', label: 'State'}
+    ]
+  })
 }
 
 module.exports = {
   topic: 'pg',
   command: 'credentials',
-  description: 'manage the database credentials',
+  description: 'show information on credentials in the database',
   needsApp: true,
   needsAuth: true,
-  flags: [{name: 'reset', description: 'reset database credentials'}],
+  help: `
+Example Usage:
+  heroku pg:credentials postgresql-transparent-12345 --name chucks-role -a woodstock-production
+`,
   args: [{name: 'database', optional: true}],
   run: cli.command({preauth: true}, co.wrap(run))
 }
