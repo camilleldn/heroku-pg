@@ -7,25 +7,29 @@ function * run (context, heroku) {
   const fetcher = require('../lib/fetcher')(heroku)
   const host = require('../lib/host')
 
-  const {app, args} = context
+  const {app, args, flags} = context
 
   let db = yield fetcher.addon(app, args.database)
 
-  let reset = co.wrap(function * () {
-    const host = require('../lib/host')
-    let db = yield fetcher.addon(app, args.database)
-    yield cli.action(`Resetting credentials on ${cli.color.addon(db.name)}`, co(function * () {
-      yield heroku.post(`/client/v11/databases/${db.id}/credentials_rotation`, {host: host(db)})
-    }))
-  })
-  let credentials = yield heroku.get(`/postgres/v0/databases/${db.name}/credentials`,
-                                     { host: host(db) })
-  cli.table(credentials, {
-    columns: [
-      {key: 'name', label: 'Credential'},
-      {key: 'state', label: 'State'}
-    ]
-  })
+  if (flags.reset) {
+    let reset = co.wrap(function * () {
+      const host = require('../lib/host')
+      let db = yield fetcher.addon(app, args.database)
+      yield cli.action(`Resetting credentials on ${cli.color.addon(db.name)}`, co(function * () {
+        yield heroku.post(`/client/v11/databases/${db.id}/credentials_rotation`, {host: host(db)})
+      }))
+    })
+  }
+  else {
+    let credentials = yield heroku.get(`/postgres/v0/databases/${db.name}/credentials`,
+                                       { host: host(db) })
+    cli.table(credentials, {
+      columns: [
+        {key: 'name', label: 'Credential'},
+        {key: 'state', label: 'State'}
+      ]
+    })
+  }
 }
 
 module.exports = {
